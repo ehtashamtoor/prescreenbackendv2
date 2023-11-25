@@ -123,7 +123,7 @@ export class CodingQuestionsController {
 
     return newQuestion;
   }
-  // TODO: not in usE
+  // TODO: not in use
   @Get('search-codingQuestions')
   @UseGuards(AuthGuard(), CompanyGuard)
   async search(
