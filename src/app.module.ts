@@ -36,9 +36,6 @@ import { SubscriptionPlanModule } from './subscription-plan/subscription-plan.mo
 import { CompanySubscriptionModule } from './company-subscription/company-subscription.module';
 import { StripeModule } from './stripe/stripe.module';
 import { SubPlanRestrictionsModule } from './sub-plan-restrictions/sub-plan-restrictions.module';
-import { GatewayModule } from './gateway/gateway.module';
-import { PermissionModule } from './permissions/permission.module';
-import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -120,9 +117,6 @@ import { NotificationModule } from './notification/notification.module';
     CompanySubscriptionModule,
     StripeModule.forRoot(process.env.stripeKey!, { apiVersion: '2023-10-16' }),
     SubPlanRestrictionsModule,
-    GatewayModule,
-    PermissionModule,
-    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

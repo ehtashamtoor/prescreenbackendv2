@@ -46,7 +46,7 @@ export class TagController {
   @Get('/getTags')
   @ApiBearerAuth()
   @ApiSecurity('JWT-auth')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({
     description: 'Get all tags',
     summary: 'Get all tags or paginate them',
@@ -75,6 +75,7 @@ export class TagController {
   }
 
   @Patch('/updateTag/:id')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiResponse({
     status: 200,
     type: UpdateTagDto,

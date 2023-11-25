@@ -9,7 +9,6 @@ import {
   Query,
   Req,
   UseGuards,
-  SetMetadata,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -21,10 +20,9 @@ import {
 } from '@nestjs/swagger';
 import { CandidateGuard } from 'src/auth/jwt.candidate.guard';
 import { AuthReq } from 'src/types';
-import { CreateDto, TemplatePerObj, paginationDto } from 'src/utils/classes';
+import { CreateDto, paginationDto } from 'src/utils/classes';
 import { CandidateApplicationService } from './candidate-application.service';
 import { UpdateCandidateApplicationDto } from './dto/update-candidate-application.dto';
-import { CompanyTeamGuard } from 'src/auth/jwt.team.guard';
 import { CompanyGuard } from 'src/auth/jwt.company.guard';
 
 @ApiTags('Candidate Application')
@@ -48,8 +46,7 @@ export class CandidateApplicationController {
     summary: 'Get all jobs applications of all companies or paginate them',
     description: 'Returns all jobs applications of all companies',
   })
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'candidate_applications_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   findAll(@Query() query: paginationDto) {
     if (query.page && query.limit) {
       const { page, limit } = query;
@@ -75,6 +72,7 @@ export class CandidateApplicationController {
   @ApiOperation({
     summary: 'Get all job-applications by application Id',
   })
+  @UseGuards(AuthGuard(), CompanyGuard)
   findOne(@Param('id') id: string) {
     return this.candidateApplicationService.findOne(id);
   }
@@ -86,7 +84,7 @@ export class CandidateApplicationController {
     );
   }
   @Get('candidateApplicationCompanyStatus')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), CompanyGuard)
   applicationCompanyStats(@Req() req: AuthReq) {
     return this.candidateApplicationService.getCompanyStatusCounts(req.user.id);
   }
@@ -95,7 +93,7 @@ export class CandidateApplicationController {
   @ApiOperation({
     summary: 'Get all job-applications of a particular candidate',
   })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), CandidateGuard)
   findByCandidate(@Req() req: AuthReq, @Query() query: paginationDto) {
     if (query.page && query.limit) {
       const { page, limit } = query;
@@ -122,6 +120,7 @@ export class CandidateApplicationController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard(), CompanyGuard)
   remove(@Param('id') id: string) {
     return this.candidateApplicationService.remove(id);
   }

@@ -53,3 +53,7 @@ export interface AuthReq extends Request {
     candidate: string;
   };
 }
+
+// export interface ServerToClientEvents {
+//   newNotification: (payload: Notification) => void;
+// }

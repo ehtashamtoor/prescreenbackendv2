@@ -10,7 +10,6 @@ import {
   UseGuards,
   BadRequestException,
   Query,
-  SetMetadata,
 } from '@nestjs/common';
 import { McqService } from './mcq.service';
 import {
@@ -29,13 +28,11 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CompanyGuard } from 'src/auth/jwt.company.guard';
-import { companyTeamsEnums, paginationDto } from 'src/utils/classes';
+import { paginationDto } from 'src/utils/classes';
 import { MCQSearchDto } from './dto/searchMcq.dto';
 import { MCQ } from './entities/mcq.entity';
 import { AuthReq } from 'src/types';
 import { SubPlanRestrictionsService } from 'src/sub-plan-restrictions/sub-plan-restrictions.service';
-import { CompanyTeamGuard } from 'src/auth/jwt.team.guard';
-import { checkUser } from 'src/utils/funtions';
 
 @ApiTags('MCQ API')
 @ApiBearerAuth()
@@ -87,15 +84,13 @@ export class McqController {
   }
   // TODO: subscription plan checks when in use
   @Get('search-mcqs')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'mcqs_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   async search(@Query() searchDto: MCQSearchDto): Promise<MCQ[]> {
     return this.mcqService.searchMCQs(searchDto);
   }
 
   @Post('/create-mcqs')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'mcqs_write')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({
     summary: 'Create MCQS',
     description: 'Provide array of MCQs',
@@ -148,15 +143,12 @@ export class McqController {
     status: 200,
     type: ResponseMCQDto,
   })
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'mcqs_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   async findAll(@Req() req: AuthReq, @Query() query: paginationDto) {
     // Check permission for mcqsBank
     // console.log(req.user);
-    const { userType } = req.user;
-    const userid = checkUser(userType, req.user.company, req.user.id);
     const mcqs = await this.restrictionsService.checkFeaturesAllowed(
-      userid,
+      req.user.id,
       'mcqs',
     );
     if (mcqs == true) {
@@ -195,8 +187,7 @@ export class McqController {
   // }
 
   @Get('/mcq-questions/:id')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'mcqs_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiResponse({
     status: 200,
     type: CreateMCQDto,
@@ -207,8 +198,7 @@ export class McqController {
 
   // FIXME: not in use
   @Post('/mcq-questionsByDifficulty')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'mcqs_update')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Get Mcqs By Difficulty' })
   @ApiResponse({
     status: 200,
@@ -267,15 +257,13 @@ export class McqController {
     @Req() req: AuthReq,
     @Body() dto: { tags: string[]; language: string },
   ) {
-    const { userType } = req.user;
-    const userid = checkUser(userType, req.user.company, req.user.id);
     const { language, tags } = dto;
     if (!language) {
       throw new BadRequestException('Language is required');
     }
     // Check permission for mcqsBank
     const mcqs = await this.restrictionsService.checkFeaturesAllowed(
-      userid,
+      req.user.id,
       'mcqs',
     );
 
@@ -287,8 +275,7 @@ export class McqController {
   }
 
   @Put('/mcq-questions/:id')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'mcqs_update')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiResponse({
     status: 200,
     type: CreateMCQDto,
@@ -302,8 +289,7 @@ export class McqController {
   }
 
   @Delete('/mcq-questions/:id')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'mcqs_del')
+  @UseGuards(AuthGuard(), CompanyGuard)
   async remove(@Param('id') id: string, @Req() req: AuthReq) {
     return this.mcqService.deleteMCQ(id, req.user.id);
   }

@@ -273,6 +273,10 @@ export class JobService {
     return { jobs, total: totalDocs };
   }
 
+  async findById(id: string) {
+    return await this.jobModel.findById(id);
+  }
+
   async getJobAna(userId: string) {
     const jobAnalytics = (await this.jobModel.aggregate([
       {

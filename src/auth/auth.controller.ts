@@ -16,6 +16,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+// import { WsJwtAuthGuard } from 'src/auth/ws-jwt/ws-jwt.guard';
 import { AuthService } from './auth.service';
 import { changePasswordDto } from './dto/changePass.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -471,6 +472,7 @@ export class AuthController {
   }
 
   @Post('/auth/login')
+  // @UseGuards(WsJwtAuthGuard)
   @ApiOperation({ summary: 'Logins the user' })
   @ApiResponse({
     status: 200,

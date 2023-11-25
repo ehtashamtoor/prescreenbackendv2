@@ -67,7 +67,7 @@ export class CandidateController {
   }
 
   @Put('candidates/:id')
-  @ApiOperation({ summary: 'Update candidate by ID' })
+  @ApiOperation({ summary: 'Update candidate by Id' })
   @UseGuards(AuthGuard(), CandidateGuard)
   updateCandidate(
     @Param('id') id: string,

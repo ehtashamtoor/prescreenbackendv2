@@ -10,7 +10,6 @@ import {
   UseGuards,
   BadRequestException,
   Query,
-  SetMetadata,
 } from '@nestjs/common';
 import { ExamService } from './exam.service';
 import { CreateExamDto } from './dto/create-exam.dto';
@@ -30,8 +29,6 @@ import { ExamDto, ResponsePagination } from './dto/exam.dto';
 import { AuthReq } from 'src/types';
 import { SubPlanRestrictionsService } from 'src/sub-plan-restrictions/sub-plan-restrictions.service';
 import { paginationDto } from 'src/utils/classes';
-import { CompanyTeamGuard } from 'src/auth/jwt.team.guard';
-import { checkUser } from 'src/utils/funtions';
 
 @ApiTags('Exam')
 @Controller('/api')
@@ -46,8 +43,7 @@ export class ExamController {
   ) {}
 
   @Post('/create-exam')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'exams_write')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Creates an Exam' })
   @ApiResponse({
     status: 201,
@@ -157,8 +153,7 @@ export class ExamController {
   }
 
   @Get('/exams')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'exams_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({
     description:
       'Get all Exams according to subscription plan or paginate them',
@@ -168,12 +163,9 @@ export class ExamController {
     type: ResponsePagination,
   })
   async findAll(@Req() req: AuthReq, @Query() query: paginationDto) {
-    const { userType } = req.user;
-    // check for usertype to send company id or userid(if company)
-    const userid = checkUser(userType, req.user.company, req.user.id);
     //  Check Permission for examBank
     const exams = await this.restrictionsService.checkFeaturesAllowed(
-      userid,
+      req.user.id,
       'exams',
     );
     console.log('exams allowed or not', exams);
@@ -213,8 +205,7 @@ export class ExamController {
   // }
 
   @Get('exams/:examId')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'exams_read')
+  @UseGuards(AuthGuard())
   @ApiOperation({ summary: 'Get Exam By ID' })
   @ApiResponse({
     status: 200,
@@ -238,8 +229,7 @@ export class ExamController {
   // }
 
   @Put('exams/:id')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'exams_update')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Edits the Exam' })
   @ApiResponse({
     status: 200,
@@ -255,8 +245,7 @@ export class ExamController {
   }
 
   @Delete('exams/:id')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'exams_del')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Deletes an Exam by its id' })
   remove(@Param('id') id: string, @Req() req: AuthReq) {
     return this.examService.remove(id, req.user.id);

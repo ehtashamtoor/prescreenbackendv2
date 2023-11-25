@@ -125,10 +125,6 @@ export class InviteService {
     return updatedFeeback;
   }
 
-  remove(id: string) {
-    return this.inviteModel.findByIdAndDelete(id);
-  }
-
   async findByjobEmail(jobid: string, email: string) {
     const inviteModel = await this.inviteModel.findOne({
       job: jobid,
@@ -137,4 +133,8 @@ export class InviteService {
     // console.log(inviteModel);
     return inviteModel;
   }
+
+  // remove(id: string) {
+  //   return this.inviteModel.findByIdAndDelete(id);
+  // }
 }

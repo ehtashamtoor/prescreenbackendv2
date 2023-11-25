@@ -124,20 +124,6 @@ export const calculateTotalQuestions = (obj1: any, obj2: any) => {
   return total;
 };
 
-export const checkUser = (
-  userType: string,
-  companyId: string,
-  userid: string,
-) => {
-  const validUserTypes = Object.values(companyTeamsEnums);
-  if (validUserTypes.includes(userType)) {
-    console.log('Setting company ID from team model');
-    const userid = companyId;
-    return userid;
-  }
-  return userid;
-};
-
 // export const getupdateExamQuestions = (exams: any, feature: any) => {
 //   let generalCount = feature.featuresUsed.examsUsed.general;
 //   let privateCount = feature.featuresUsed.examsUsed.private;

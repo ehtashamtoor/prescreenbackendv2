@@ -554,13 +554,15 @@ export class CandidateAssessmentService {
             }
 
             const transformedData = transformData(questionFound, question);
+            console.log('transform data', transformedData);
             //api call from compiler for result
             try {
+              console.log('enter in try', process.env.COMPILER_LINK )
               const response = await axios.post(
                 `${process.env.COMPILER_LINK}`,
                 transformedData,
               );
-              // console.log('compiler result:', response.data);
+              console.log('compiler result:', response.data);
               if (response.data.stdout == true) {
                 const codingQuestion = {
                   questionId: question.questionId,
@@ -592,7 +594,9 @@ export class CandidateAssessmentService {
                 };
                 return codingQuestion;
               }
+              // console.log('in try last', response.data);
             } catch (error) {
+              console.log('catch', error);
               throw new InternalServerErrorException(error);
             }
           }),

@@ -10,7 +10,6 @@ import {
   UseGuards,
   BadRequestException,
   Query,
-  SetMetadata,
 } from '@nestjs/common';
 import { CodingQuestionsService } from './coding-question.service';
 import {
@@ -28,12 +27,10 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { companyTeamsEnums, paginationDto } from 'src/utils/classes';
+import { paginationDto } from 'src/utils/classes';
 import { CodingSearchDto } from './dto/searcCodingQuestion.dto';
 import { AuthReq } from 'src/types';
 import { SubPlanRestrictionsService } from 'src/sub-plan-restrictions/sub-plan-restrictions.service';
-import { CompanyTeamGuard } from 'src/auth/jwt.team.guard';
-import { checkUser } from 'src/utils/funtions';
 
 @ApiTags('Coding Questions')
 @ApiBearerAuth()
@@ -88,8 +85,7 @@ export class CodingQuestionsController {
   }
 
   @Post('/coding-questions')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'codingQuestions_write')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Create a Coding Question' })
   @ApiResponse({
     status: 201,
@@ -129,8 +125,7 @@ export class CodingQuestionsController {
   }
   // TODO: not in use
   @Get('search-codingQuestions')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'codingQuestions_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   async search(
     @Query() searchDto: CodingSearchDto,
   ): Promise<CodingQuestionDto[]> {
@@ -165,8 +160,7 @@ export class CodingQuestionsController {
   // }
 
   @Get('/coding-questions')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'codingQuestions_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({
     summary:
       'Get all coding questions  according to subscriptionPlan or paginate them',
@@ -181,11 +175,9 @@ export class CodingQuestionsController {
     description: 'Coding Questions not found',
   })
   async getAllQuestions(@Req() req: AuthReq, @Query() query: paginationDto) {
-    const { userType } = req.user;
-    const userid = checkUser(userType, req.user.company, req.user.id);
     // Check permission for codingBank
     const codingQuestion = await this.restrictionsService.checkFeaturesAllowed(
-      userid,
+      req.user.id,
       'codingQuestion',
     );
     if (codingQuestion == true) {
@@ -211,8 +203,7 @@ export class CodingQuestionsController {
   }
 
   @Get('/coding-questions/:id')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'codingQuestions_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Get coding question By ID' })
   @ApiResponse({
     status: 200,
@@ -228,8 +219,7 @@ export class CodingQuestionsController {
   }
 
   @Post('/coding-questionsByDifficulty')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'codingQuestions_read')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Get coding question By Difficulty' })
   @ApiResponse({
     status: 200,
@@ -289,10 +279,6 @@ export class CodingQuestionsController {
     @Body() dto: { tags: string[]; language: string },
   ) {
     // let userid = req.user.id;
-    const { userType } = req.user;
-    // check userid for company or company Teams
-    const userid = checkUser(userType, req.user.company, req.user.id);
-
     const { language, tags } = dto;
 
     if (!language) {
@@ -300,7 +286,7 @@ export class CodingQuestionsController {
     }
     // Check permission for codingBank
     const codingQuestion = await this.restrictionsService.checkFeaturesAllowed(
-      userid,
+      req.user.id,
       'codingQuestion',
     );
     if (codingQuestion == true) {
@@ -315,8 +301,7 @@ export class CodingQuestionsController {
   }
 
   @Put('/coding-questions/:id')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'codingQuestions_update')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Edits the Coding Question' })
   @ApiResponse({
     status: 200,
@@ -336,8 +321,7 @@ export class CodingQuestionsController {
   }
 
   @Delete('/coding-questions/:id')
-  @UseGuards(AuthGuard(), CompanyTeamGuard)
-  @SetMetadata('permission', 'codingQuestions_del')
+  @UseGuards(AuthGuard(), CompanyGuard)
   @ApiOperation({ summary: 'Deletes a Coding Question by its id' })
   async deleteQuestion(@Param('id') id: string, @Req() req: AuthReq) {
     return this.codingQuestionsService.deleteQuestion(id, req.user.id);

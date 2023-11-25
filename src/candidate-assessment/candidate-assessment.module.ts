@@ -22,6 +22,9 @@ import {
   companySubscriptionSchema,
 } from 'src/company-subscription/entities/company-subscription.entity';
 import { SubPlanRestrictionsService } from 'src/sub-plan-restrictions/sub-plan-restrictions.service';
+import { JobService } from 'src/job/job.service';
+import { Job, jobSchema } from 'src/job/entities/job.entity';
+import { CandidateApplication, CandidateApplicationSchema } from 'src/candidate-application/entities/candidate-application.entity';
 
 @Module({
   imports: [
@@ -32,6 +35,8 @@ import { SubPlanRestrictionsService } from 'src/sub-plan-restrictions/sub-plan-r
       { name: Exam.name, schema: ExamSchema },
       { name: CodingQuestion.name, schema: CodingQuestionSchema },
       { name: MCQ.name, schema: McqSchema },
+      { name: Job.name, schema: jobSchema },
+      { name:  CandidateApplication.name, schema: CandidateApplicationSchema },
       { name: companySubscription.name, schema: companySubscriptionSchema },
     ]),
   ],
@@ -42,6 +47,7 @@ import { SubPlanRestrictionsService } from 'src/sub-plan-restrictions/sub-plan-r
     CodingQuestionsService,
     McqService,
     SubPlanRestrictionsService,
+    JobService,
   ],
 })
 export class CandidateAssessmentModule {}

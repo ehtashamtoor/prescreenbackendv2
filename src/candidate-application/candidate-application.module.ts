@@ -7,8 +7,6 @@ import { AuthModule } from 'src/auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { JobService } from 'src/job/job.service';
 import { Job, jobSchema } from 'src/job/entities/job.entity';
-import { PermissionService } from 'src/permissions/permission.service';
-import { PermissionUserSchema, PermissionsUserModel } from 'src/permissions/entities/permission.entity';
 
 @Module({
   imports: [
@@ -21,15 +19,11 @@ import { PermissionUserSchema, PermissionsUserModel } from 'src/permissions/enti
         name: Job.name,
         schema: jobSchema,
       },
-      {
-        name: PermissionsUserModel.name,
-        schema: PermissionUserSchema,
-      },
     ]),
     AuthModule,
     PassportModule,
   ],
   controllers: [CandidateApplicationController],
-  providers: [CandidateApplicationService, JobService, PermissionService],
+  providers: [CandidateApplicationService, JobService],
 })
 export class CandidateApplicationModule {}

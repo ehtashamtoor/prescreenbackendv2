@@ -34,13 +34,16 @@ import {
 } from 'src/utils/classes';
 import { RejectDto } from 'src/utils/classes';
 import { SubPlanRestrictionsService } from 'src/sub-plan-restrictions/sub-plan-restrictions.service';
-import { getNormalDate, getupdatedJobsAllowed } from 'src/utils/funtions';
-// import { CompanyGuard } from 'src/auth/jwt.company.guard';
+import {
+  getNormalDate,
+  getupdatedJobsAllowed,
+} from 'src/utils/funtions';
 import { CandidateGuard } from 'src/auth/jwt.candidate.guard';
 import { UserService } from 'src/user/user.service';
 import { CandidateService } from 'src/candidate/candidate.service';
 import * as moment from 'moment';
 import { MailingService } from 'src/mailing/mailing.service';
+import { CompanyGuard } from 'src/auth/jwt.company.guard';
 
 @ApiTags('Company Job Module')
 @ApiBearerAuth()
@@ -146,7 +149,7 @@ export class JobController {
   }
 
   @Post('create-job')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), CompanyGuard)
   async create(@Body() dto: CreateJobDto, @Req() req: AuthReq) {
     dto.createdBy = req.user.id;
     dto.jobStatus = 'open';
@@ -185,7 +188,7 @@ export class JobController {
       return await this.jobService.findAllJobs(query);
     }
   }
-
+  // TODO: this route is used by candidate, superadmin
   @Get('allByCompany')
   @ApiOperation({
     summary: 'Get all jobs of a company',
@@ -212,10 +215,11 @@ export class JobController {
   @Get('analytics/jobStatus')
   @UseGuards(AuthGuard())
   @ApiResponse({
-    description: 'Array of  jobStatus counts',
+    description: 'Array of jobStatus counts',
     status: 200,
     type: JobAnalyticsResponse,
   })
+  @UseGuards(AuthGuard(), CompanyGuard)
   async getJobAnalytics(@Req() req: AuthReq) {
     return await this.jobService.getJobAna(req.user.id);
   }
@@ -263,14 +267,14 @@ export class JobController {
   @ApiOperation({
     summary: 'Update job by id',
   })
-  // @UseGuards(AuthGuard(), CompanyGuard)
+  @UseGuards(AuthGuard(), CompanyGuard)
   @UseGuards(AuthGuard())
   update(@Param('id') id: string, @Body() dto: UpdateJobDto) {
     return this.jobService.update(id, dto);
   }
 
   @Patch('applications/reject')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), CompanyGuard)
   rejectApplication(@Body() dto: RejectDto) {
     return this.jobService.rejectApplication(dto);
   }
@@ -407,7 +411,7 @@ export class JobController {
   }
 
   @Patch('applications/alreadyApplied/:jobid')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), CandidateGuard)
   async checkAlreadyApplied(
     @Param('jobid') jobid: string,
     @Req() req: AuthReq,
@@ -482,7 +486,7 @@ export class JobController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), CompanyGuard)
   remove(@Param('id') id: string) {
     return this.jobService.remove(id);
   }

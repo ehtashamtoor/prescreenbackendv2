@@ -22,7 +22,10 @@ import { CreateInviteDto } from './dto/create-invite.dto';
 import { ExamInvite } from './entities/invite.entity';
 import { MailingService } from 'src/mailing/mailing.service';
 import { AuthReq, InviteEmailData } from 'src/types';
-import { getNormalDate, getupdatedTestsAllowed } from 'src/utils/funtions';
+import {
+  getNormalDate,
+  getupdatedTestsAllowed,
+} from 'src/utils/funtions';
 import { CandidateApplicationService } from 'src/candidate-application/candidate-application.service';
 import {
   EnumsCandidate,
@@ -32,6 +35,7 @@ import {
 } from 'src/utils/classes';
 import { UserService } from 'src/user/user.service';
 import { SubPlanRestrictionsService } from 'src/sub-plan-restrictions/sub-plan-restrictions.service';
+import { CompanyGuard } from 'src/auth/jwt.company.guard';
 
 @ApiTags('Exam Invite Module')
 @ApiBearerAuth()
@@ -66,7 +70,7 @@ export class InviteController {
   }
 
   @Post('create-invite')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), CompanyGuard)
   async create(@Req() req: AuthReq, @Body() dto: CreateInviteDto) {
     // Check if there is already invited Candidate
     const inviteFound = await this.inviteService.findByjobEmail(
@@ -76,8 +80,8 @@ export class InviteController {
     if (inviteFound) {
       throw new BadRequestException('Already Sent invite link');
     }
-
-    //Check limit
+    try {
+      // Check limit
     const feature = await this.restrictionsService.checkFeaturesUsed(
       req.user.id,
       'tests',
@@ -150,8 +154,12 @@ export class InviteController {
     }
 
     return invite;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+    
   }
-
+  // TODO: not in use
   @Get('getAll')
   findAll(): Promise<ExamInvite[]> {
     return this.inviteService.findAll();
@@ -172,6 +180,7 @@ export class InviteController {
   //   return this.inviteService.findOne(id);
   // }
 
+  // TODO: not in use
   @Patch('update-invite/:id')
   @ApiBearerAuth()
   @ApiSecurity('JWT-auth')

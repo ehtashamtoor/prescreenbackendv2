@@ -768,7 +768,7 @@ export const EnumsCandidate = {
   hiredPhase: {
     status: 'hired',
     message: 'Contact company for further process',
-  },
+  },         
   rejectPhase: { status: 'rejected', message: '' },
 };
 
